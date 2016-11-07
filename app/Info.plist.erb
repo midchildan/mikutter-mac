@@ -1,0 +1,35 @@
+<%-
+  require "yaml"
+
+  spec_path =  File.expand_path("../.mikutter.yml", File.dirname(__FILE__))
+  spec = YAML.load_file(spec_path)
+
+  SHORT_VERSION = spec["version"]
+  FULL_VERSION = spec["version"]
+-%>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>ja_JP</string>
+    <key>CFBundleDisplayName</key>
+    <string>mikutter</string>
+    <key>CFBundleExecutable</key>
+    <string>mikutter</string>
+    <key>CFBundleIconFile</key>
+    <string>mikutter.icns</string>
+    <key>CFBundleIdentifier</key>
+    <string>net.hachune.mikutter</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>mikutter</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string><%= SHORT_VERSION %></string>
+    <key>CFBundleVersion</key>
+    <string><%= FULL_VERSION %></string>
+  </dict>
+</plist>

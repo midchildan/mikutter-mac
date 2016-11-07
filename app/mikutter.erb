@@ -1,0 +1,61 @@
+<%-
+  MIKUTTER_ENV = {}
+  PREPEND_PATH = ENV["PREPEND_PATH"]
+-%>
+#!/usr/bin/ruby
+
+def setup_locale(env = {})
+  env["LC_ALL"] = nil
+  if ENV["LANG"].nil? || /\.UTF-8\z/.match(ENV["LANG"]).nil?
+    env["LANG"] = detect_lang
+  end
+  if ENV["LANGUAGE"].nil?
+    env["LANGUAGE"] = detect_language
+  end
+
+  env
+end
+
+def detect_lang
+  lang = `/usr/bin/defaults read net.hachune.mikutter AppleLocale 2>/dev/null`.chomp
+  unless $?.success?
+    lang = `/usr/bin/defaults read -g AppleLocale`.chomp
+  end
+  lang.gsub!('-', '_')
+  lang.gsub!('Hant', 'TW')
+  lang.gsub!('Hans', 'CN')
+  lang << ".UTF-8"
+
+  `/usr/bin/locale -a | /usr/bin/grep -q '^#{lang}$'`
+  unless $?.success?
+    lang = "en_US.UTF-8"
+  end
+
+  lang
+end
+
+def detect_language
+  langs = `/usr/bin/defaults read net.hachune.mikutter AppleLanguages 2>/dev/null`
+  unless $?.success?
+    langs = `/usr/bin/defaults read -g AppleLanguages`
+  end
+  langs.gsub!('-', '_')
+  langs.gsub!('Hant', 'TW')
+  langs.gsub!('Hans', 'CN')
+
+  language = []
+  langs.each_line do |line|
+    match = /\w+/.match(line)
+    language << match[0] if match
+  end
+
+  language.join(":")
+end
+
+if __FILE__ == $0
+  <%- if !PREPEND_PATH.nil? && !PREPEND_PATH.empty? -%>
+    ENV["PATH"] = "<%= PREPEND_PATH %>:" + ENV["PATH"]
+  <%- end -%>
+  mikutter_env = setup_locale(<%= MIKUTTER_ENV %>)
+  exec(mikutter_env, "mikutter", *ARGV)
+end
